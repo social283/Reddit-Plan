@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dista Reddit · 30 Day Checklist</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; font-size: 14px; }
+
+  .page { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+  .header-left h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .header-left p { font-size: 13px; color: #888; }
+  .header-right { text-align: right; }
+  .progress-label { font-size: 11px; color: #888; margin-bottom: 6px; }
+  .progress-bar-wrap { width: 200px; height: 6px; background: #e0ddd6; border-radius: 10px; overflow: hidden; }
+  .progress-bar { height: 100%; background: #1a1a1a; border-radius: 10px; transition: width 0.3s; }
+  .progress-count { font-size: 12px; color: #666; margin-top: 5px; text-align: right; }
+
+  /* LEGEND */
+  .legend { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-brand { background: #1a56db; }
+  .dot-personal { background: #d97706; }
+  .dot-community { background: #1e7e34; }
+  .dot-setup { background: #7c3aed; }
+
+  /* WEEK BLOCKS */
+  .week-block { margin-bottom: 28px; }
+  .week-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .week-label { font-size: 13px; font-weight: 700; }
+  .week-tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .wt-setup { background: #ede9fe; color: #7c3aed; }
+  .wt-build { background: #dbeafe; color: #1a56db; }
+  .wt-grow { background: #dcfce7; color: #166534; }
+  .wt-expand { background: #fef9c3; color: #854d0e; }
+  .week-line { flex: 1; height: 1px; background: #e0ddd6; }
+
+  /* TASK TABLE */
+  .task-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e8e6df; }
+  .task-table thead tr { background: #f5f4f0; }
+  .task-table thead th { padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #888; text-align: left; border-bottom: 1px solid #e8e6df; }
+  .task-table tbody tr { border-bottom: 1px solid #f0ede6; transition: background 0.1s; }
+  .task-table tbody tr:last-child { border-bottom: none; }
+  .task-table tbody tr.done-row { background: #fafaf8; }
+  .task-table tbody td { padding: 11px 14px; vertical-align: top; }
+
+  .col-check { width: 36px; }
+  .col-day { width: 70px; }
+  .col-task { }
+  .col-where { width: 130px; }
+  .col-who { width: 120px; }
+  .col-note { width: 180px; }
+
+  .check { width: 16px; height: 16px; border: 1.5px solid #ccc; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+  .check.done { background: #1e7e34; border-color: #1e7e34; }
+  .check.done::after { content: ''; display: block; width: 8px; height: 5px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translateY(-1px); }
+
+  .day-num { font-size: 12px; font-weight: 700; color: #888; }
+  .task-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; line-height: 1.4; }
+  .task-name.done { color: #bbb; text-decoration: line-through; }
+  .task-desc { font-size: 11px; color: #999; line-height: 1.5; }
+
+  .where-pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; background: #f0ede6; color: #555; margin: 1px 1px 0 0; }
+
+  .who-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+  .who-brand { background: #dbeafe; color: #1a56db; }
+  .who-personal { background: #fef3c7; color: #92400e; }
+  .who-community { background: #dcfce7; color: #166534; }
+  .who-team { background: #f3e8ff; color: #7c3aed; }
+
+  .note-text { font-size: 11px; color: #888; line-height: 1.5; }
+
+  /* KPI ROW */
+  .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 28px; }
+  .kpi-box { background: #fff; border: 1px solid #e8e6df; border-radius: 10px; padding: 14px 16px; }
+  .kpi-val { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+  .kpi-lbl { font-size: 11px; color: #888; line-height: 1.4; }
+
+  /* RULES */
+  .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  .rules-card { border-radius: 12px; padding: 16px 20px; }
+  .rules-do { background: #f0fdf4; border: 1px solid #a8d5b5; }
+  .rules-dont { background: #fff5f5; border: 1px solid #f5c6c6; }
+  .rules-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .rules-do .rules-title { color: #166534; }
+  .rules-dont .rules-title { color: #991b1b; }
+  .rules-item { font-size: 12px; color: #444; padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.05); line-height: 1.5; display: flex; gap: 8px; }
+  .rules-item:last-child { border-bottom: none; }
+
+  /* ACCOUNTS STRIP */
+  .accounts-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  .acc-card { background: #fff; border: 1px solid #e8e6df; border-radius: 12px; padding: 16px 20px; }
+  .acc-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .acc-role { font-size: 12px; color: #888; margin-bottom: 10px; }
+  .acc-line { font-size: 12px; color: #555; padding: 4px 0; border-bottom: 1px solid #f0ede6; line-height: 1.4; display: flex; gap: 8px; }
+  .acc-line:last-child { border-bottom: none; }
+
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; margin: 0 0 12px; }
+
+  .note-banner { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px 16px; margin-bottom: 24px; font-size: 12px; color: #78350f; line-height: 1.6; }
+
+  @media print {
+    body { background: #fff; }
+    .page { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Dista Reddit · 30 Day Checklist</h1>
+      <p>Team plan · Phase 1 · Community building · Starting May 2026</p>
+    </div>
+    <div class="header-right">
+      <p class="progress-label">Overall progress</p>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="global-bar" style="width:0%"></div></div>
+      <p class="progress-count" id="global-count">0 of 0 done</p>
+    </div>
+  </div>
+
+  <!-- NOTE -->
+  <div class="note-banner">
+    <strong>Important:</strong> u/distacart and u/guyfromdista must never post on the same day. Brand account builds the sub and posts wellness content. Personal account (Harish) builds trust as a community voice. r/Ayurveda is banned -- do not attempt from either account.
+  </div>
+
+  <!-- ACCOUNTS -->
+  <p class="section-label">Accounts at a glance</p>
+  <div class="accounts-strip">
+    <div class="acc-card">
+      <p class="acc-name">u/distacart</p>
+      <p class="acc-role">Brand account · 18 contributions · Active</p>
+      <div class="acc-line"><span>Owns and manages r/DesiLifeAbroad</span></div>
+      <div class="acc-line"><span>Posts educational wellness content in niche subs</span></div>
+      <div class="acc-line"><span>"From Dista" flair assigned</span></div>
+      <div class="acc-line"><span>Never links to Distacart in original posts</span></div>
+    </div>
+    <div class="acc-card">
+      <p class="acc-name">u/guyfromdista</p>
+      <p class="acc-role">Personal account · Harish · Create Day 2</p>
+      <div class="acc-line"><span>Bio discloses Dista affiliation clearly</span></div>
+      <div class="acc-line"><span>Reads only in week 1 · no posting until week 2</span></div>
+      <div class="acc-line"><span>Daily 60 min community contribution</span></div>
+      <div class="acc-line"><span>Primary long-term Reddit voice for Dista</span></div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <span style="font-size: 12px; color: #888; font-weight: 600;">Who does what:</span>
+    <span class="legend-item"><span class="legend-dot dot-brand"></span>u/distacart (brand)</span>
+    <span class="legend-item"><span class="legend-dot dot-personal"></span>u/guyfromdista (Harish)</span>
+    <span class="legend-item"><span class="legend-dot dot-community"></span>Both accounts</span>
+    <span class="legend-item"><span class="legend-dot dot-setup"></span>Team / setup task</span>
+  </div>
+
+  <br>
+
+  <!-- KPIs -->
+  <p class="section-label">30 day KPI targets</p>
+  <div class="kpi-strip">
+    <div class="kpi-box"><p class="kpi-val">300+</p><p class="kpi-lbl">Karma earned by end of month</p></div>
+    <div class="kpi-box"><p class="kpi-val">12+</p><p class="kpi-lbl">Posts published across all subs</p></div>
+    <div class="kpi-box"><p class="kpi-val">100+</p><p class="kpi-lbl">Genuine comments made</p></div>
+    <div class="kpi-box"><p class="kpi-val">50+</p><p class="kpi-lbl">Members in r/DesiLifeAbroad</p></div>
+    <div class="kpi-box"><p class="kpi-val">&lt;10%</p><p class="kpi-lbl">Post removal or ban rate</p></div>
+  </div>
+
+  <!-- RULES -->
+  <p class="section-label">Ground rules for the whole team</p>
+  <div class="rules-grid">
+    <div class="rules-card rules-do">
+      <p class="rules-title">Always do this</p>
+      <p class="rules-item"><span>+</span>Disclose Dista affiliation naturally inside the post body</p>
+      <p class="rules-item"><span>+</span>End every post with a genuine question to pull comments</p>
+      <p class="rules-item"><span>+</span>Reply to every comment within 2 hours of posting</p>
+      <p class="rules-item"><span>+</span>Mention Dista products only in replies when someone asks</p>
+      <p class="rules-item"><span>+</span>Sound like a person, not a brand, at all times</p>
+      <p class="rules-item"><span>+</span>Log every post, comment, and reply in the tracker</p>
+    </div>
+    <div class="rules-card rules-dont">
+      <p class="rules-title">Never do this</p>
+      <p class="rules-item"><span>-</span>Link to Distacart.com in any original post</p>
+      <p class="rules-item"><span>-</span>Post from both accounts on the same day</p>
+      <p class="rules-item"><span>-</span>Mention product names or prices in the post body</p>
+      <p class="rules-item"><span>-</span>Post in r/Ayurveda from u/distacart (banned)</p>
+      <p class="rules-item"><span>-</span>Use corporate or PR language anywhere on Reddit</p>
+      <p class="rules-item"><span>-</span>Ask customers to post reviews (looks coordinated)</p>
+    </div>
+  </div>
+
+  <!-- WEEK 1 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-label">Week 1 · Days 1-7</span>
+      <span class="week-tag wt-setup">Setup + First Posts</span>
+      <span class="week-line"></span>
+    </div>
+    <table class="task-table">
+      <thead>
+        <tr>
+          <th class="col-check"></th>
+          <th class="col-day">Day</th>
+          <th class="col-task">Task</th>
+          <th class="col-where">Where</th>
+          <th class="col-who">Who</th>
+          <th class="col-note">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="check done" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 1</span></td>
+          <td><p class="task-name done">Write community description</p></td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Done. "Tired of fake, expired, or overpriced Indian products abroad..."</p></td>
+        </tr>
+        <tr>
+          <td><div class="check done" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 1</span></td>
+          <td><p class="task-name done">Set welcome message</p></td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Done.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check done" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 1</span></td>
+          <td><p class="task-name done">Set Apne Log + Baatein nicknames</p></td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Done.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check done" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 1</span></td>
+          <td><p class="task-name done">Create "From Dista" flair</p></td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Done. Assign to u/distacart and later u/guyfromdista.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 1</span></td>
+          <td>
+            <p class="task-name">Add icon and banner</p>
+            <p class="task-desc">Required for Rising Mod flair. Must be done before intro post in r/NewMods.</p>
+          </td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-team">Team</span></td>
+          <td><p class="note-text">Design team provides assets. Blockes the Rising Mod checklist.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 1</span></td>
+          <td>
+            <p class="task-name">Post Rising Mod intro in r/NewMods</p>
+            <p class="task-desc">Introduce r/DesiLifeAbroad. Required for Rising Mod flair challenge.</p>
+          </td>
+          <td><span class="where-pill">r/NewMods</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Do after icon + banner are live. Earns Rising Mod flair.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 1</span></td>
+          <td>
+            <p class="task-name">Post neem post</p>
+            <p class="task-desc">"Why does Western herbalism almost completely ignore neem?" Educational. Ends with a question.</p>
+          </td>
+          <td><span class="where-pill">r/herbalism</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Post written and ready. Monitor replies for 2 hours after posting.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 2</span></td>
+          <td>
+            <p class="task-name">Create u/guyfromdista account</p>
+            <p class="task-desc">Fill bio, profile picture, and description. Disclose Dista affiliation clearly in bio.</p>
+          </td>
+          <td><span class="where-pill">Reddit</span></td>
+          <td><span class="who-pill who-personal">Harish</span></td>
+          <td><p class="note-text">Bio must say "I work at Distacart" -- never hide affiliation.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 2</span></td>
+          <td>
+            <p class="task-name">Post Ashwagandha post</p>
+            <p class="task-desc">"Americans keep asking me about Ashwagandha -- here's what I've actually learned after shipping 50+ SKUs"</p>
+          </td>
+          <td><span class="where-pill">r/Supplements</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Do not post on same day as neem post. Space by 1 day minimum.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 2</span></td>
+          <td>
+            <p class="task-name">Join 6 core subs from u/guyfromdista</p>
+            <p class="task-desc">r/Ayurveda, r/herbalism, r/IndianFood, r/NRI, r/ABCDesis, r/IndianDiaspora</p>
+          </td>
+          <td><span class="where-pill">6 subs</span></td>
+          <td><span class="who-pill who-personal">Harish</span></td>
+          <td><p class="note-text">Read only. No posting or commenting from personal account yet.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 3</span></td>
+          <td>
+            <p class="task-name">Publish Post 1 in r/DesiLifeAbroad</p>
+            <p class="task-desc">Topic: "Why Indian products sold abroad are often fake or expired -- here's what to look for"</p>
+          </td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">First of 5 posts needed for Rising Mod flair.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 3</span></td>
+          <td>
+            <p class="task-name">Post "Where do you order Indian products from" on r/NRI</p>
+            <p class="task-desc">Curiosity post. Discloses Dista upfront. Ends with an open question. No links.</p>
+          </td>
+          <td><span class="where-pill">r/NRI</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Market research. Read all replies carefully -- log insights.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 4</span></td>
+          <td>
+            <p class="task-name">Publish Post 2 in r/DesiLifeAbroad</p>
+            <p class="task-desc">Topic: "Introduce yourself -- where are you based and what's the one Indian product you can't live without?"</p>
+          </td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Community-building post. Designed to get first comments rolling.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 5</span></td>
+          <td>
+            <p class="task-name">Find 3 users and invite to r/DesiLifeAbroad</p>
+            <p class="task-desc">Search r/NRI and r/ABCDesis for relevant posts. Publicly comment inviting them to the sub.</p>
+          </td>
+          <td><span class="where-pill">r/NRI</span><span class="where-pill">r/ABCDesis</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Required for Rising Mod flair. Comments must be genuine, not spam.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 5</span></td>
+          <td>
+            <p class="task-name">Publish Post 3 in r/DesiLifeAbroad</p>
+            <p class="task-desc">Topic: "Ashwagandha, Shilajit, Triphala -- what Indian wellness products are you actually using abroad?"</p>
+          </td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Discussion-starter. Wellness angle. No product promotion.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 6</span></td>
+          <td>
+            <p class="task-name">Publish Post 4 in r/DesiLifeAbroad</p>
+            <p class="task-desc">Topic: "The counterfeit problem -- how to spot fake Patanjali and Himalaya products sold abroad"</p>
+          </td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Strong angle for the sub. Drives the anti-fake positioning.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 7</span></td>
+          <td>
+            <p class="task-name">Publish Post 5 in r/DesiLifeAbroad</p>
+            <p class="task-desc">Topic: "What do you miss most from India that you just can't find abroad?"</p>
+          </td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Nostalgia angle. High engagement potential. Rising Mod target met after this.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 7</span></td>
+          <td>
+            <p class="task-name">Schedule 5 posts for weeks 2-5</p>
+            <p class="task-desc">Use Reddit's post scheduler. Text posts only for scheduling.</p>
+          </td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Required for Rising Mod flair. One per week for next 5 weeks.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 7</span></td>
+          <td>
+            <p class="task-name">Week 1 review</p>
+            <p class="task-desc">Log karma gained, post performance, comment replies, and any bans or removals.</p>
+          </td>
+          <td><span class="where-pill">Internal</span></td>
+          <td><span class="who-pill who-team">Team</span></td>
+          <td><p class="note-text">Track in shared sheet. Adjust content based on what got engagement.</p></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-label">Week 2 · Days 8-14</span>
+      <span class="week-tag wt-build">Personal Account Activates</span>
+      <span class="week-line"></span>
+    </div>
+    <table class="task-table">
+      <thead>
+        <tr>
+          <th class="col-check"></th>
+          <th class="col-day">Day</th>
+          <th class="col-task">Task</th>
+          <th class="col-where">Where</th>
+          <th class="col-who">Who</th>
+          <th class="col-note">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 8</span></td>
+          <td>
+            <p class="task-name">u/guyfromdista first comments</p>
+            <p class="task-desc">Comment on 3 threads in r/Ayurveda, r/herbalism, r/IndianFood. Genuine and helpful only.</p>
+          </td>
+          <td><span class="where-pill">3 subs</span></td>
+          <td><span class="who-pill who-personal">Harish</span></td>
+          <td><p class="note-text">First public activity from personal account. No brand mention yet.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 9</span></td>
+          <td>
+            <p class="task-name">Post turmeric post from u/guyfromdista</p>
+            <p class="task-desc">"Why Turmeric from Indian Ayurvedic brands hits differently than Western supplements" -- educational, personal tone.</p>
+          </td>
+          <td><span class="where-pill">r/Supplements</span></td>
+          <td><span class="who-pill who-personal">Harish</span></td>
+          <td><p class="note-text">First standalone post from personal account. Discloses Dista naturally in body.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 10</span></td>
+          <td>
+            <p class="task-name">Reach out to r/NRI moderator</p>
+            <p class="task-desc">DM mod introducing Dista and the counterfeit-products angle. Ask for community partnership or AMA consideration.</p>
+          </td>
+          <td><span class="where-pill">r/NRI</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Pitch must lead with value to the community, not Dista's benefit.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 11</span></td>
+          <td>
+            <p class="task-name">Daily comments from u/guyfromdista</p>
+            <p class="task-desc">5 comments across r/Ayurveda, r/herbalism, r/IndianDiaspora. Build karma steadily.</p>
+          </td>
+          <td><span class="where-pill">3 subs</span></td>
+          <td><span class="who-pill who-personal">Harish</span></td>
+          <td><p class="note-text">Daily habit from this point. 30-45 min per day minimum.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 12</span></td>
+          <td>
+            <p class="task-name">Post Isha Life neem + turmeric reply template</p>
+            <p class="task-desc">When someone in neem or Ashwagandha threads asks for brand recs, reply with Himalaya, Baidyanath, Isha Life naturally.</p>
+          </td>
+          <td><span class="where-pill">r/herbalism</span><span class="where-pill">r/Supplements</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Only when asked. Never volunteer brand names unprompted.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 13</span></td>
+          <td>
+            <p class="task-name">Post Indian skincare post</p>
+            <p class="task-desc">"Kumkumadi, Nalpamaradi, Ubtan -- Indian skincare that Western brands have been quietly copying"</p>
+          </td>
+          <td><span class="where-pill">r/IndianFood</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">New category. Test engagement before going into r/IndianSkincareAddicts.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 14</span></td>
+          <td>
+            <p class="task-name">Week 2 review</p>
+            <p class="task-desc">Log u/guyfromdista karma, post performance, mod response from r/NRI, and comment engagement rate.</p>
+          </td>
+          <td><span class="where-pill">Internal</span></td>
+          <td><span class="who-pill who-team">Team</span></td>
+          <td><p class="note-text">Is the personal account gaining traction? Adjust frequency if needed.</p></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- WEEK 3 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-label">Week 3 · Days 15-21</span>
+      <span class="week-tag wt-grow">Expand + Deepen</span>
+      <span class="week-line"></span>
+    </div>
+    <table class="task-table">
+      <thead>
+        <tr>
+          <th class="col-check"></th>
+          <th class="col-day">Day</th>
+          <th class="col-task">Task</th>
+          <th class="col-where">Where</th>
+          <th class="col-who">Who</th>
+          <th class="col-note">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 15</span></td>
+          <td>
+            <p class="task-name">Enter r/IndianSkincareAddicts</p>
+            <p class="task-desc">Start with comments only. Do not post yet. Read what the community values and what gets downvoted.</p>
+          </td>
+          <td><span class="where-pill">r/IndianSkincare Addicts</span></td>
+          <td><span class="who-pill who-personal">Harish</span></td>
+          <td><p class="note-text">Strict community. Lurk and comment for 7 days before any post.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 16</span></td>
+          <td>
+            <p class="task-name">Post Ghee post</p>
+            <p class="task-desc">"Why the ghee in Indian grocery stores abroad tastes completely different -- and what that tells you about sourcing"</p>
+          </td>
+          <td><span class="where-pill">r/IndianFood</span></td>
+          <td><span class="who-pill who-personal">Harish</span></td>
+          <td><p class="note-text">High-interest topic for diaspora. Personal voice works better than brand here.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 17</span></td>
+          <td>
+            <p class="task-name">AMA prep · plan the angle</p>
+            <p class="task-desc">Draft AMA concept for r/NRI or r/DesiLifeAbroad. Angle: "We ship Indian products globally -- ask us anything about sourcing, fakes, and what NRIs actually want"</p>
+          </td>
+          <td><span class="where-pill">Internal</span></td>
+          <td><span class="who-pill who-team">Team</span></td>
+          <td><p class="note-text">AMA target is month 2. Prep now. Need mod approval first.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 18</span></td>
+          <td>
+            <p class="task-name">Post Unani / Homeopathy awareness post</p>
+            <p class="task-desc">"Nobody outside India knows what Unani medicine is -- here's a quick explainer from someone who ships it daily"</p>
+          </td>
+          <td><span class="where-pill">r/herbalism</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Underexplored angle. Positions Dista as knowledgeable across all Indian wellness systems.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 19</span></td>
+          <td>
+            <p class="task-name">Engage top 5 posts in r/DesiLifeAbroad</p>
+            <p class="task-desc">Reply to every comment that came in since week 1. Keep conversations alive.</p>
+          </td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Active moderation keeps the community warm. Do not let threads go cold.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 21</span></td>
+          <td>
+            <p class="task-name">Week 3 review</p>
+            <p class="task-desc">Review total karma across both accounts. Check r/DesiLifeAbroad member count. Assess which post format got the most engagement.</p>
+          </td>
+          <td><span class="where-pill">Internal</span></td>
+          <td><span class="who-pill who-team">Team</span></td>
+          <td><p class="note-text">Double down on what worked. Drop what got removed or ignored.</p></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- WEEK 4 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-label">Week 4 · Days 22-30</span>
+      <span class="week-tag wt-expand">Community + Month 2 Prep</span>
+      <span class="week-line"></span>
+    </div>
+    <table class="task-table">
+      <thead>
+        <tr>
+          <th class="col-check"></th>
+          <th class="col-day">Day</th>
+          <th class="col-task">Task</th>
+          <th class="col-where">Where</th>
+          <th class="col-who">Who</th>
+          <th class="col-note">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 22</span></td>
+          <td>
+            <p class="task-name">Post in r/IndianSkincareAddicts</p>
+            <p class="task-desc">First standalone post from personal account in this sub. Topic: Indian skincare ingredients that are going global.</p>
+          </td>
+          <td><span class="where-pill">r/IndianSkincare Addicts</span></td>
+          <td><span class="who-pill who-personal">Harish</span></td>
+          <td><p class="note-text">Only after 7 days of commenting. Post should feel like a community member, not outsider.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 23</span></td>
+          <td>
+            <p class="task-name">Cross-post best performing content to r/DesiLifeAbroad</p>
+            <p class="task-desc">Take the top post from week 1-2 and reformat it as a discussion thread in the owned sub.</p>
+          </td>
+          <td><span class="where-pill">r/DesiLifeAbroad</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Recycle top-performing angles. Saves content creation time.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 25</span></td>
+          <td>
+            <p class="task-name">Confirm Rising Mod flair earned</p>
+            <p class="task-desc">Check r/NewMods for flair confirmation. If not yet received, comment again on the challenge thread.</p>
+          </td>
+          <td><span class="where-pill">r/NewMods</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Need icon, banner, 5 posts, 5 scheduled, intro, and 3 user invites all done first.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 26</span></td>
+          <td>
+            <p class="task-name">Write reply templates for brand recommendations</p>
+            <p class="task-desc">Prepare 5 natural-sounding replies for when users ask "what brand do you recommend" in any thread.</p>
+          </td>
+          <td><span class="where-pill">Internal</span></td>
+          <td><span class="who-pill who-team">Team</span></td>
+          <td><p class="note-text">Templates for Isha Life, Himalaya, Baidyanath, Patanjali mentions. Natural, not salesy.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 27</span></td>
+          <td>
+            <p class="task-name">Begin AMA outreach to r/NRI mod</p>
+            <p class="task-desc">Formally pitch AMA to r/NRI moderator. Angle: sourcing, fake products, what NRIs actually want.</p>
+          </td>
+          <td><span class="where-pill">r/NRI</span></td>
+          <td><span class="who-pill who-brand">u/distacart</span></td>
+          <td><p class="note-text">Lead with community value. Do not mention Distacart's marketing goals in the pitch.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 28</span></td>
+          <td>
+            <p class="task-name">Reddit ads research</p>
+            <p class="task-desc">Review best-performing posts. Identify 1-2 candidates for Promoted Post ads in month 2.</p>
+          </td>
+          <td><span class="where-pill">Internal</span></td>
+          <td><span class="who-pill who-team">Team</span></td>
+          <td><p class="note-text">Promoted posts work best when the organic version already has upvotes. Never promote cold content.</p></td>
+        </tr>
+        <tr>
+          <td><div class="check" onclick="toggle(this)"></div></td>
+          <td><span class="day-num">Day 30</span></td>
+          <td>
+            <p class="task-name">Month 1 full review</p>
+            <p class="task-desc">Total karma both accounts. r/DesiLifeAbroad member count. Posts published. Comments made. Removal rate. Best and worst performing content.</p>
+          </td>
+          <td><span class="where-pill">Internal</span></td>
+          <td><span class="who-pill who-team">Team</span></td>
+          <td><p class="note-text">Share this with the full team. Use it to build the month 2 plan.</p></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <br>
+  <p style="font-size: 11px; color: #bbb; text-align: center;">Dista Reddit Strategy · Phase 1 · Internal team document · Do not share publicly</p>
+
+</div>
+
+<script>
+  function toggle(el) {
+    el.classList.toggle('done');
+    const row = el.closest('tr');
+    if (row) row.classList.toggle('done-row');
+    const taskName = row ? row.querySelector('.task-name') : null;
+    if (taskName) taskName.classList.toggle('done');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const all = document.querySelectorAll('.check');
+    const done = document.querySelectorAll('.check.done');
+    const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
+    document.getElementById('global-bar').style.width = pct + '%';
+    document.getElementById('global-count').textContent = done.length + ' of ' + all.length + ' done';
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
